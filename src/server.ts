@@ -1,21 +1,38 @@
-import app from "./app";
-import { prisma } from "./lib/prisma";
-import "dotenv/config";
+import { Server } from 'http';
+import app from './app';
+import config from './config';
+import { prisma } from './lib/prisma';
 
-const PORT=process.env.PORT || 5000;
+let server: Server;
 
 async function main() {
-    try {
-        await prisma.$connect();
-        console.log("Database Connected Successfully")
-        app.listen(PORT,()=>{
-            console.log(`SERVER IS RUNNING ON PORT ${PORT}`)
-        })
-    } catch (error) {
-        console.error("Error Starting The Server :",error);
-        await prisma.$disconnect();
-        process.exit(1);
-        
-    }
+  try {
+    // ডাটাবেজ কানেকশন সফলভাবে কাজ করছে কিনা চেক করা
+    await prisma.$connect();
+    console.log('📶 Database connected successfully!');
+
+    server = app.listen(config.port, () => {
+      console.log(`🚀 Server is running on port ${config.port}`);
+    });
+  } catch (err) {
+    console.error('❌ Failed to start server:', err);
+  }
 }
-main()
+
+main();
+
+// আনহ্যান্ডেলড রিজেকশন হ্যান্ডেল করা
+process.on('unhandledRejection', () => {
+  console.log(`😈 unhandledRejection is detected, shutting down...`);
+  if (server) {
+    server.close(() => {
+      process.exit(1);
+    });
+  }
+  process.exit(1);
+});
+
+process.on('uncaughtException', () => {
+  console.log(`😈 uncaughtException is detected, shutting down...`);
+  process.exit(1);
+});
