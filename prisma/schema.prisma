@@ -61,33 +61,42 @@ model Profile {
 }
 
 model Category {
-  id        String     @id @default(uuid())
-  name      String     @unique
-  createdAt DateTime   @default(now())
-  gearItems GearItem[]
+  id          String     @id @default(uuid())
+  name        String     @unique
+  description String?    // 👈 অপশনাল করা হলো যাতে কোনো এরর না আসে
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  gearItems   GearItem[]
 }
 
 model GearItem {
-  id          String   @id @default(uuid())
-  name        String
-  description String
-  pricePerDay Float
-  brand       String
-  stock       Int
-  isAvailable Boolean  @default(true)
-  categoryId  String
-  category    Category @relation(fields: [categoryId], references: [id])
-  providerId  String
-  provider    User     @relation(fields: [providerId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  reviews     Review[]
+  id           String        @id @default(uuid())
+  name         String        // 👈 'title'-এর বদলে 'name' ব্যবহার করা হয়েছে সার্ভিস ফাইলের সাথে মিল রেখে
+  description  String
+  pricePerDay  Float
+  brand        String
+  stock        Int           @default(1)
+  isAvailable  Boolean       @default(true)
+  categoryId   String
+  providerId   String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  category     Category      @relation(fields: [categoryId], references: [id])
+  provider     User          @relation("ProviderGear", fields: [providerId], references: [id])
+  rentalOrders RentalOrder[]
+  reviews      Review[]
 }
 
 model RentalOrder {
   id         String      @id @default(uuid())
   customerId String
   customer   User        @relation(fields: [customerId], references: [id])
+  
+  // 👈 গিয়ার আইটেম রিলেশনশিপ ফিল্ড এবং ফরেন কি:
+  gearItemId String
+  gearItem   GearItem    @relation(fields: [gearItemId], references: [id])
+
   startDate  DateTime
   endDate    DateTime
   totalPrice Float
