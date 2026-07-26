@@ -1,8 +1,6 @@
 import { prisma } from '../../lib/prisma.js'; // আপনার প্রিজমা ক্লায়েন্ট পাথ
 
-/**
- * অ্যাসাইনমেন্ট রিকোয়ারমেন্ট অনুযায়ী সব ইউজার ফেচ করার সার্ভিস
- */
+
 const getAllUsersFromDB = async () => {
   const users = await prisma.user.findMany({
     select: {
@@ -22,9 +20,7 @@ const getAllUsersFromDB = async () => {
   return users;
 };
 
-/**
- * ইউজারের রোল বা স্ট্যাটাস আপডেট করার সার্ভিস
- */
+
 const updateUserRoleOrStatusInDB = async (id: string, payload: any) => {
   const isUserExist = await prisma.user.findUnique({
     where: { id },
@@ -50,9 +46,7 @@ const updateUserRoleOrStatusInDB = async (id: string, payload: any) => {
   return updatedUser;
 };
 
-/**
- * সব গিয়ার লিস্টিং ফেচ করার সার্ভিস
- */
+
 const getAllGearsFromDB = async () => {
   const gears = await prisma.gearItem.findMany({
     include: {
@@ -73,9 +67,7 @@ const getAllGearsFromDB = async () => {
   return gears;
 };
 
-/**
- * সব রেন্টাল অর্ডার ফেচ করার সার্ভিস
- */
+
 const getAllRentalsFromDB = async () => {
   const rentals = await prisma.rentalOrder.findMany({
     include: {
@@ -87,7 +79,7 @@ const getAllRentalsFromDB = async () => {
         },
       },
       gearItem: true,
-      payments: true, // 👈 আপনার স্কিমা অনুযায়ী 'payments' করা হলো
+      payments: true,
     },
     orderBy: {
       createdAt: 'desc',
