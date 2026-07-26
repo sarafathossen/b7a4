@@ -1,19 +1,28 @@
 import { Request, Response, NextFunction } from 'express';
-import { PaymentService } from './payment.service';
+import { PaymentService } from './payment.service.js';
 
-const createIntent = async (req: Request, res: Response, next: NextFunction) => {
+const createPaymentIntent = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { rentalOrderId } = req.body;
-    const result = await PaymentService.createPaymentIntent(rentalOrderId);
-    res.status(200).json({ success: true, message: 'Payment intent created', data: result });
-  } catch (error) { next(error); }
+    const customerId = (req as any).user?.id || (req as any).user?.userId;
+
+    const payload = {
+      ...req.body,
+      customerId,
+    };
+
+    const result = await PaymentService.createPaymentIntentIntoDB(payload);
+
+    res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: 'Payment intent created successfully',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
-const confirm = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const result = await PaymentService.confirmPayment(req.body);
-    res.status(200).json({ success: true, message: 'Payment confirmed successfully', data: result });
-  } catch (error) { next(error); }
+export const PaymentController = {
+  createPaymentIntent,
 };
-
-export const PaymentController = { createIntent, confirm };

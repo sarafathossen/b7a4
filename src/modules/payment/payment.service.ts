@@ -1,45 +1,52 @@
-import { prisma } from '../../lib/prisma';
+import { prisma } from '../../lib/prisma.js';
 import Stripe from 'stripe';
-import AppError from '../../errors/AppError';
 
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'fake_key', {
-  apiVersion: '2025-01-27.acacia' as any,
+// Stripe ইনস্ট্যান্স তৈরি
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+  apiVersion: '2023-10-16' as any,
 });
 
-const createPaymentIntent = async (rentalOrderId: string) => {
-  const order = await prisma.rentalOrder.findUnique({ where: { id: rentalOrderId } });
-  if (!order) throw new AppError(404, 'Rental order not found!');
+const createPaymentIntentIntoDB = async (payload: {
+  rentalOrderId: string;
+  paymentMethod: string;
+  customerId?: string;
+}) => {
+  const { rentalOrderId, paymentMethod } = payload;
 
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: Math.round(order.totalPrice * 100), // Cents-এ কনভার্ট করা হয়েছে
-    currency: 'usd',
-    payment_method_types: ['card'],
+  // ১. রেন্টাল অর্ডারটি ডাটাবেজে আছে কিনা চেক করা
+  const rentalOrder = await prisma.rentalOrder.findUnique({
+    where: { id: rentalOrderId },
   });
 
-  return { clientSecret: paymentIntent.client_secret };
-};
+  if (!rentalOrder) {
+    throw new Error('Rental order not found!');
+  }
 
-const confirmPayment = async (payload: { rentalOrderId: string; transactionId: string }) => {
-  return await prisma.$transaction(async (tx) => {
-    const order = await tx.rentalOrder.update({
-      where: { id: payload.rentalOrderId },
-      data: { status: 'PAID' },
-    });
+  // ২. পেমেন্ট মেথড চেক করা
+  if (paymentMethod === 'Stripe') {
+    // Stripe Amount সবসময় সেন্ট (Cents) এ হিসাব হয় (১ ডলার = ১০০ সেন্ট)
+    const amountInCents = Math.round(Number(rentalOrder.totalPrice) * 100);
 
-    await tx.payment.create({
-      data: {
-        rentalOrderId: payload.rentalOrderId,
-        amount: order.totalPrice,
-        transactionId: payload.transactionId,
-        method: 'Stripe',
-        status: 'COMPLETED',
-        paidAt: new Date(),
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amountInCents,
+      currency: 'usd',
+      payment_method_types: ['card'],
+      metadata: {
+        rentalOrderId: rentalOrder.id,
       },
     });
 
-    return order;
-  });
+    return {
+      clientSecret: paymentIntent.client_secret,
+      totalPrice: rentalOrder.totalPrice,
+      currency: 'usd',
+      paymentIntentId: paymentIntent.id,
+    };
+  }
+
+  throw new Error('Unsupported payment method!');
 };
 
-export const PaymentService = { createPaymentIntent, confirmPayment };
+export const PaymentService = {
+  createPaymentIntentIntoDB,
+};

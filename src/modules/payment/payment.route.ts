@@ -1,10 +1,14 @@
 import express from 'express';
-import auth from '../../middlewares/auth';
-import { PaymentController } from './payment.controller';
+import { PaymentController } from './payment.controller.js';
+import auth from '../../middlewares/auth.js';
 
 const router = express.Router();
 
-router.post('/payments/create', auth('CUSTOMER'), PaymentController.createIntent);
-router.post('/payments/confirm', auth('CUSTOMER'), PaymentController.confirm);
+// POST /api/payments/create (অথবা /api/payments/create-intent)
+router.post(
+  '/create',
+  auth('Customer', 'CUSTOMER'), // কাস্টমার এক্সেসের জন্য মিডলওয়্যার
+  PaymentController.createPaymentIntent
+);
 
 export const PaymentRoutes = router;
