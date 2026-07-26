@@ -44,7 +44,7 @@ const getAllGears = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-// 👈 অ্যাডমিনের জন্য সব রেন্টাল অর্ডারের লিস্ট পাওয়ার কন্ট্রোলার
+
 const getAllRentals = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await AdminService.getAllRentalsFromDB();
@@ -63,5 +63,5 @@ export const AdminController = {
   getAllUsers,
   updateUserRoleOrStatus,
   getAllGears,
-  getAllRentals, // 👈 এখানে যুক্ত করা হলো
+  getAllRentals, 
 };
