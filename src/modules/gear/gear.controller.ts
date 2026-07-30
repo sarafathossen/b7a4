@@ -33,7 +33,7 @@ const getAllGear = async (req: Request, res: Response, next: NextFunction) => {
 const getGearById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    const result = await GearService.getGearById(id);
+    const result = await GearService.getGearById(id as any);
     
     if (!result) {
       return res.status(404).json({
@@ -56,7 +56,7 @@ const updateGear = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     const providerId = (req as any).user?.id;
-    const result = await GearService.updateGear(id, providerId, req.body);
+    const result = await GearService.updateGear(id as any, providerId, req.body);
     
     res.status(200).json({ 
       success: true, 
@@ -72,7 +72,7 @@ const deleteGear = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     const providerId = (req as any).user?.id;
-    await GearService.deleteGear(id, providerId);
+    await GearService.deleteGear(id as any, providerId);
     
     res.status(200).json({ 
       success: true, 

@@ -33,7 +33,7 @@ const createRentalOrderIntoDB = async (payload: any) => {
 
   const totalPrice = diffDays * gearItem.pricePerDay;
 
-  const result = await prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx:any) => {
     const rentalOrder = await tx.rentalOrder.create({
       data: {
         startDate: start,
@@ -142,7 +142,7 @@ const updateOrderStatusInDB = async (id: string, status: any, providerId: string
     throw new Error("Unauthorized! You can only update status for your own gear orders.");
   }
 
-  return await prisma.$transaction(async (tx) => {
+  return await prisma.$transaction(async (tx:any) => {
     const updatedOrder = await tx.rentalOrder.update({
       where: { id },
       data: { status },

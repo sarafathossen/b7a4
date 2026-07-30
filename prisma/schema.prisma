@@ -3,9 +3,7 @@ datasource db {
 }
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
-  // যদি নিচে output = "../../generated/prisma/client" এমন কিছু থাকে, তবে সেই লাইনটি সম্পূর্ণ কেটে দিন।
+  provider = "prisma-client-js"
 }
 
 enum UserRole {
@@ -35,17 +33,17 @@ enum PaymentStatus {
 }
 
 model User {
-  id         String      @id @default(uuid())
-  email      String      @unique
-  password   String
-  role       UserRole    @default(CUSTOMER)
-  status     UserStatus  @default(ACTIVE)
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  profile    Profile?    // ওয়ান-টু-ওয়ান রিলেশন প্রোফাইলের সাথে
-  gearItems  GearItem[]
-  rentals    RentalOrder[]
-  reviews    Review[]
+  id        String        @id @default(uuid())
+  email     String        @unique
+  password  String
+  role      UserRole      @default(CUSTOMER)
+  status    UserStatus    @default(ACTIVE)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @default(now()) @updatedAt
+  profile   Profile?
+  gearItems GearItem[]    @relation("ProviderGear")
+  rentals   RentalOrder[]
+  reviews   Review[]
 }
 
 model Profile {
@@ -57,21 +55,21 @@ model Profile {
   userId    String   @unique
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Category {
   id          String     @id @default(uuid())
   name        String     @unique
-  description String?    // 👈 অপশনাল করা হলো যাতে কোনো এরর না আসে
+  description String?
   createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  updatedAt   DateTime   @default(now()) @updatedAt // 👈 ডিফল্ট ভ্যালু যুক্ত করায় বিদ্যমান ডেটায় কোনো এরর আসবে না
   gearItems   GearItem[]
 }
 
 model GearItem {
   id           String        @id @default(uuid())
-  name         String        // 👈 'title'-এর বদলে 'name' ব্যবহার করা হয়েছে সার্ভিস ফাইলের সাথে মিল রেখে
+  name         String
   description  String
   pricePerDay  Float
   brand        String
@@ -80,7 +78,7 @@ model GearItem {
   categoryId   String
   providerId   String
   createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  updatedAt    DateTime      @default(now()) @updatedAt
 
   category     Category      @relation(fields: [categoryId], references: [id])
   provider     User          @relation("ProviderGear", fields: [providerId], references: [id])
@@ -92,8 +90,7 @@ model RentalOrder {
   id         String      @id @default(uuid())
   customerId String
   customer   User        @relation(fields: [customerId], references: [id])
-  
-  // 👈 গিয়ার আইটেম রিলেশনশিপ ফিল্ড এবং ফরেন কি:
+
   gearItemId String
   gearItem   GearItem    @relation(fields: [gearItemId], references: [id])
 
@@ -102,7 +99,7 @@ model RentalOrder {
   totalPrice Float
   status     OrderStatus @default(PLACED)
   createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  updatedAt  DateTime    @default(now()) @updatedAt
   payments   Payment[]
 }
 
@@ -112,7 +109,7 @@ model Payment {
   rentalOrder   RentalOrder   @relation(fields: [rentalOrderId], references: [id])
   amount        Float
   transactionId String        @unique
-  method        String        // Stripe or SSLCommerz
+  method        String        // Stripe, SSLCommerz, etc.
   status        PaymentStatus @default(PENDING)
   paidAt        DateTime?
   createdAt     DateTime      @default(now())

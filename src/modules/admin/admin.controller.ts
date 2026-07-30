@@ -18,7 +18,7 @@ const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
 const updateUserRoleOrStatus = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    const result = await AdminService.updateUserRoleOrStatusInDB(id, req.body);
+    const result = await AdminService.updateUserRoleOrStatusInDB(id as string, req.body);
     res.status(200).json({
       success: true,
       statusCode: 200,

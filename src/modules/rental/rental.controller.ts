@@ -58,7 +58,7 @@ const getUserRentals = async (req: Request, res: Response, next: NextFunction) =
 const getRentalDetails = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    const result = await RentalService.getRentalDetailsFromDB(id);
+    const result = await RentalService.getRentalDetailsFromDB(id as any);
 
     if (!result) {
       return res.status(httpStatus.NOT_FOUND).json({
@@ -115,7 +115,7 @@ const updateOrderStatus = async (req: Request, res: Response, next: NextFunction
       });
     }
 
-    const result = await RentalService.updateOrderStatusInDB(id, status, providerId);
+    const result = await RentalService.updateOrderStatusInDB(id as any, status, providerId);
 
     res.status(httpStatus.OK).json({
       success: true,

@@ -7,7 +7,6 @@ let server: Server;
 
 async function main() {
   try {
-    // ডাটাবেজ কানেকশন সফলভাবে কাজ করছে কিনা চেক করা
     await prisma.$connect();
     console.log('📶 Database connected successfully!');
 
@@ -21,7 +20,6 @@ async function main() {
 
 main();
 
-// আনহ্যান্ডেলড রিজেকশন হ্যান্ডেল করা
 process.on('unhandledRejection', () => {
   console.log(`😈 unhandledRejection is detected, shutting down...`);
   if (server) {

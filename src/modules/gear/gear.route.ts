@@ -5,19 +5,30 @@ import { GearController } from './gear.controller.js';
 const router = express.Router();
 
 
-router.get('/gear', GearController.getAllGear);
+router.get('/', GearController.getAllGear);
+
+router.get('/:id', GearController.getGearById);
 
 
-router.get('/gear/:id', GearController.getGearById);
+
+router.post(
+  '/', 
+  auth('PROVIDER', 'Provider', 'ADMIN', 'Admin'), 
+  GearController.addGear
+);
 
 
+router.put(
+  '/:id', 
+  auth('PROVIDER', 'Provider', 'ADMIN', 'Admin'), 
+  GearController.updateGear
+);
 
-router.post('/provider/gear', auth('PROVIDER'), GearController.addGear);
 
-
-router.put('/provider/gear/:id', auth('PROVIDER'), GearController.updateGear);
-
-
-router.delete('/provider/gear/:id', auth('PROVIDER'), GearController.deleteGear);
+router.delete(
+  '/:id', 
+  auth('PROVIDER', 'Provider', 'ADMIN', 'Admin'), 
+  GearController.deleteGear
+);
 
 export const GearRoutes = router;

@@ -1,28 +1,29 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import globalErrorHandler from './middlewares/globalErrorHandler.js'; // .js যুক্ত করা হয়েছে
-import router from './routes/index.js'; // .js যুক্ত করা হয়েছে (অথবা শুধু ./routes.js তোমার ফাইল স্ট্রাকচার অনুযায়ী)
+import globalErrorHandler from './middlewares/globalErrorHandler'; 
+import router from './routes/index'; 
 
 const app: Application = express();
 
-// মিডলওয়্যারসমূহ
 app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 
-// মেইন এপিআই রাউটস
-app.use('/api', router);
-
-// রুট রাউট
+// Root route
 app.get('/', (req: Request, res: Response) => {
-  res.send('GearUp Server Running... 🏋️');
+  res.status(200).json({
+    success: true,
+    message: 'GearUp Server Running Successfully... 🏋️',
+  });
 });
 
-// গ্লোবাল এরর হ্যান্ডলার মিডলওয়্যার
+app.use('/api', router);
+
+// Global Error Handler
 app.use(globalErrorHandler);
 
-// ৪MD৪ (Not Found) রাউট হ্যান্ডলিং — অ্যাসাইনমেন্টের রিকোয়ারমেন্ট অনুযায়ী কনসিস্টেন্ট রেসপন্স
+// Not Found Handler
 app.use((req: Request, res: Response) => {
   res.status(404).json({
     success: false,
@@ -30,7 +31,7 @@ app.use((req: Request, res: Response) => {
     errorDetails: {
       path: req.originalUrl,
       method: req.method,
-      message: "The requested route does not exist on this server."
+      message: 'The requested route does not exist on this server.',
     },
   });
 });

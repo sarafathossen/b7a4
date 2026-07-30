@@ -28,7 +28,7 @@ const createReview = async (req: Request, res: Response, next: NextFunction) => 
 const getGearReviews = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { gearId } = req.params;
-    const result = await ReviewService.getGearReviewsFromDB(gearId);
+    const result = await ReviewService.getGearReviewsFromDB(gearId as any);
 
     res.status(httpStatus.OK).json({
       success: true,
