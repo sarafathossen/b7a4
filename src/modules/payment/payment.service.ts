@@ -1,7 +1,7 @@
 import { prisma } from '../../lib/prisma.js';
 import Stripe from 'stripe';
 
-// Stripe ইনস্ট্যান্স তৈরি
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2023-10-16' as any,
 });
@@ -13,7 +13,7 @@ const createPaymentIntentIntoDB = async (payload: {
 }) => {
   const { rentalOrderId, paymentMethod } = payload;
 
-  // ১. রেন্টাল অর্ডারটি ডাটাবেজে আছে কিনা চেক করা
+  
   const rentalOrder = await prisma.rentalOrder.findUnique({
     where: { id: rentalOrderId },
   });
@@ -22,9 +22,9 @@ const createPaymentIntentIntoDB = async (payload: {
     throw new Error('Rental order not found!');
   }
 
-  // ২. পেমেন্ট মেথড চেক করা
+  
   if (paymentMethod === 'Stripe') {
-    // Stripe Amount সবসময় সেন্ট (Cents) এ হিসাব হয় (১ ডলার = ১০০ সেন্ট)
+    
     const amountInCents = Math.round(Number(rentalOrder.totalPrice) * 100);
 
     const paymentIntent = await stripe.paymentIntents.create({
