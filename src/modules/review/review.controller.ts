@@ -3,7 +3,6 @@ import { Request, Response, NextFunction } from 'express';
 import httpStatus from 'http-status';
 import { ReviewService } from './review.service';
 
-// নতুন রিভিউ ক্রিয়েট
 const createReview = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const customerId = (req as any).user?.id || (req as any).user?.userId;
@@ -26,7 +25,6 @@ const createReview = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-// গিয়ারের সব রিভিউ পাওয়ার জন্য
 const getGearReviews = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { gearId } = req.params;

@@ -1,7 +1,6 @@
-import { prisma } from '../../lib/prisma.js'; // আপনার প্রিজমা ক্লায়েন্ট পাথ
+import { prisma } from '../../lib/prisma.js'; 
 
 const createReviewIntoDB = async (payload: any) => {
-  // Postman থেকে gearId বা gearItemId যেটাই আসুক না কেন হ্যান্ডেল করবে
   const gearItemId = payload.gearItemId || payload.gearId;
   const { customerId, rating, comment } = payload;
 
@@ -13,7 +12,6 @@ const createReviewIntoDB = async (payload: any) => {
     throw new Error('Customer ID is required.');
   }
 
-  // ১. গিয়ার আইটেমটি ডাটাবেজে আছে কিনা তা চেক করা
   const gearItem = await prisma.gearItem.findUnique({
     where: { id: gearItemId },
   });
@@ -22,7 +20,6 @@ const createReviewIntoDB = async (payload: any) => {
     throw new Error('Gear item not found!');
   }
 
-  // ২. রিভিউ ডাটাবেজে তৈরি করা
   const result = await prisma.review.create({
     data: {
       rating: Number(rating),
