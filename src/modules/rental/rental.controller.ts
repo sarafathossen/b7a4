@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import { RentalService } from './rental.service.js';
 import httpStatus from 'http-status';
 
-// ১. রেন্টাল অর্ডার তৈরি (Customer)
 const createRentalOrder = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const customerId = (req as any).user?.id || (req as any).user?.userId;
@@ -32,7 +31,6 @@ const createRentalOrder = async (req: Request, res: Response, next: NextFunction
   }
 };
 
-// ২. ইউজারের নিজের সব অর্ডার দেখা (Customer)
 const getUserRentals = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const customerId = (req as any).user?.id || (req as any).user?.userId;
@@ -57,7 +55,6 @@ const getUserRentals = async (req: Request, res: Response, next: NextFunction) =
   }
 };
 
-// ৩. নির্দিষ্ট রেন্টাল অর্ডারের ডিটেইলস দেখা
 const getRentalDetails = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
@@ -81,7 +78,6 @@ const getRentalDetails = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-// ৪. প্রোভাইডারের অর্ডার দেখা (Provider)
 const getProviderOrders = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const providerId = (req as any).user?.id || (req as any).user?.userId;
@@ -106,7 +102,6 @@ const getProviderOrders = async (req: Request, res: Response, next: NextFunction
   }
 };
 
-// ৫. অর্ডারের স্ট্যাটাস আপডেট করা (Provider)
 const updateOrderStatus = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;

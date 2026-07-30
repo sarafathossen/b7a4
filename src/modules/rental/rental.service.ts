@@ -1,8 +1,7 @@
 import { prisma } from '../../lib/prisma.js';
 
-/**
- * ১. নতুন রেন্টাল অর্ডার তৈরি করা (Customer)
- */
+
+ 
 const createRentalOrderIntoDB = async (payload: any) => {
   const { customerId, gearItemId, startDate, endDate } = payload;
 
@@ -10,7 +9,6 @@ const createRentalOrderIntoDB = async (payload: any) => {
     throw new Error("Customer ID is required to place a rental order.");
   }
 
-  // ১.১ গিয়ার আইটেমটি আসলেই ডাটাবেজে আছে কিনা চেক করা
   const gearItem = await prisma.gearItem.findUnique({
     where: { id: gearItemId },
   });
@@ -23,7 +21,6 @@ const createRentalOrderIntoDB = async (payload: any) => {
     throw new Error("This gear item is currently unavailable or out of stock!");
   }
 
-  // ১.২ ডেট ভ্যালিডেশন ও টোটাল প্রাইস ক্যালকুলেট করা
   const start = new Date(startDate);
   const end = new Date(endDate);
 
@@ -36,9 +33,7 @@ const createRentalOrderIntoDB = async (payload: any) => {
 
   const totalPrice = diffDays * gearItem.pricePerDay;
 
-  // ১.৩ ডাটাবেজে ট্রানজেকশন চালানো (অর্ডার ক্রিয়েট ও স্টক আপডেট)
   const result = await prisma.$transaction(async (tx) => {
-    // অর্ডার তৈরি (স্ট্যাটাস 'PLACED')
     const rentalOrder = await tx.rentalOrder.create({
       data: {
         startDate: start,
@@ -63,7 +58,6 @@ const createRentalOrderIntoDB = async (payload: any) => {
       },
     });
 
-    // গিয়ারের স্টক ১ টি কমিয়ে দেওয়া
     await tx.gearItem.update({
       where: { id: gearItemId },
       data: {
@@ -79,9 +73,7 @@ const createRentalOrderIntoDB = async (payload: any) => {
   return result;
 };
 
-/**
- * ২. ইউজারের নিজের সব রেন্টাল অর্ডার দেখা (Customer)
- */
+
 const getUserRentalsFromDB = async (customerId: string) => {
   return await prisma.rentalOrder.findMany({
     where: { customerId },
@@ -94,9 +86,7 @@ const getUserRentalsFromDB = async (customerId: string) => {
   });
 };
 
-/**
- * ৩. নির্দিষ্ট অর্ডারের ডিটেইলস দেখা
- */
+
 const getRentalDetailsFromDB = async (id: string) => {
   return await prisma.rentalOrder.findUnique({
     where: { id },
@@ -112,9 +102,7 @@ const getRentalDetailsFromDB = async (id: string) => {
   });
 };
 
-/**
- * ৪. প্রোভাইডারের কাছে আসা রেন্টাল অর্ডারগুলো দেখা (Provider)
- */
+
 const getProviderOrdersFromDB = async (providerId: string) => {
   return await prisma.rentalOrder.findMany({
     where: {
@@ -137,11 +125,8 @@ const getProviderOrdersFromDB = async (providerId: string) => {
   });
 };
 
-/**
- * ৫. অর্ডারের স্ট্যাটাস আপডেট করা (Provider)
- */
+
 const updateOrderStatusInDB = async (id: string, status: any, providerId: string) => {
-  // ৫.১ ভ্যালিডেশন: অর্ডারটি প্রোভাইডারের নিজস্ব প্রোডাক্টের কিনা চেক করা
   const existingOrder = await prisma.rentalOrder.findUnique({
     where: { id },
     include: {
@@ -157,7 +142,6 @@ const updateOrderStatusInDB = async (id: string, status: any, providerId: string
     throw new Error("Unauthorized! You can only update status for your own gear orders.");
   }
 
-  // ৫.২ স্ট্যাটাস আপডেট এবং ক্যানসেল/রিটার্ন হলে স্টক +১ ফেরত দেওয়া
   return await prisma.$transaction(async (tx) => {
     const updatedOrder = await tx.rentalOrder.update({
       where: { id },
