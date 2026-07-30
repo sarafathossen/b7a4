@@ -29,7 +29,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 
 const getMe = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // আপনার auth middleware টোকেন ভেরিফাই করে ইউজার ইনফো req.user এ সেট করে রাখে
+    
     const user = (req as any).user; 
 
     const result = await AuthService.getMeFromDB(user.email, user.role);
